@@ -1,3 +1,7 @@
+### GRUPO: FELIPE Z. ROSA - BEATRIZ PINHEIRO LAMI
+
+
+
 ### Passo 1: Criação do banco de dados
 
 ```sql
