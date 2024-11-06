@@ -1,5 +1,3 @@
-Aqui está o código completo que inclui todos os passos para criar o banco de dados do **clube do livro**, incluindo a criação de tabelas, inserção de dados, e consultas necessárias. O código está ajustado para garantir que tudo funcione conforme os requisitos e a estrutura fornecida.
-
 ### Passo 1: Criação do banco de dados
 
 ```sql
@@ -223,5 +221,3 @@ No MySQL Workbench, siga esses passos para realizar o backup:
 2. Escolha o banco de dados `ClubeDoLivro` e marque as tabelas que deseja exportar.
 3. Escolha o formato de exportação (por exemplo, `.sql`).
 4. Clique em **Start Export** para gerar o backup.
-
-Com esse código, você terá o banco de dados completo, com tabelas, inserções e consultas definidas.
