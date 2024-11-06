@@ -2,25 +2,48 @@
 
 
 
-### Passo 1: Criação do banco de dados
+# ReadMe: Sistema de Gerenciamento de Clube do Livro
 
+Este repositório contém o código de criação de um banco de dados para um **Clube do Livro**. O sistema gerencia informações sobre clientes, editoras, livros, estoque e pedidos. A seguir, é apresentado o passo a passo para configurar e usar o banco de dados.
+
+---
+
+## 1. Estrutura do Banco de Dados
+
+### 1.1. Banco de Dados
+- O código começa selecionando o banco de dados `clube_do_livro` para executar as consultas. Certifique-se de criar o banco de dados antes de rodar o código:
 ```sql
--- Criação do banco de dados
-CREATE DATABASE IF NOT EXISTS ClubeDoLivro;
-USE ClubeDoLivro;
+CREATE DATABASE clube_do_livro;
 ```
 
-### Passo 2: Criação das tabelas
+### 1.2. Tabelas Criadas
+As tabelas que compõem o banco de dados são:
 
-#### Tabela `Cliente`
+- **Cliente**: Armazena dados dos clientes, incluindo CPF, RG, CNPJ, entre outros.
+- **Editora**: Contém informações das editoras, como nome, telefone e email.
+- **Livro**: Detalha os livros, como título, categoria, ISBN, ano de publicação, preço e a editora associada.
+- **Estoque**: Controla a quantidade disponível de cada livro em estoque.
+- **Pedido**: Registra os pedidos feitos pelos clientes, com a data do pedido e o valor total.
+- **Item_Pedido**: Relaciona os itens de cada pedido, informando quais livros foram comprados e suas quantidades.
 
+---
+
+## 2. Passo a Passo para Configuração e Execução
+
+### 2.1. Selecionando o Banco de Dados
+Após a criação do banco de dados, execute o comando para selecioná-lo:
 ```sql
--- Excluir a tabela Cliente caso ela já exista
-DROP TABLE IF EXISTS Cliente;
+USE clube_do_livro;
+```
 
--- Criar a tabela Cliente
+### 2.2. Criação das Tabelas
+
+Execute os seguintes comandos SQL para criar as tabelas no banco de dados:
+
+#### Cliente:
+```sql
 CREATE TABLE Cliente (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INTEGER AUTO_INCREMENT,
     Nome VARCHAR(255),
     Endereco VARCHAR(255),
     Telefone VARCHAR(20),
@@ -28,200 +51,304 @@ CREATE TABLE Cliente (
     Tipo_cliente ENUM('PF', 'PJ'),
     CPF VARCHAR(14),
     RG VARCHAR(20),
-    CNPJ VARCHAR(18)
+    CNPJ VARCHAR(18),
+    PRIMARY KEY(ID)
 );
 ```
 
-#### Tabela `Editora`
-
+#### Editora:
 ```sql
--- Excluir a tabela Editora caso ela já exista
-DROP TABLE IF EXISTS Editora;
-
--- Criar a tabela Editora
 CREATE TABLE Editora (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INTEGER AUTO_INCREMENT,
     Nome VARCHAR(255),
+    Telefone VARCHAR(20),
     Email VARCHAR(255),
-    Telefone VARCHAR(20)
+    PRIMARY KEY(ID)
 );
 ```
 
-#### Tabela `Livro`
-
+#### Livro:
 ```sql
--- Excluir a tabela Livro caso ela já exista
-DROP TABLE IF EXISTS Livro;
-
--- Criar a tabela Livro
 CREATE TABLE Livro (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INTEGER AUTO_INCREMENT,
     Titulo VARCHAR(255),
     Categoria VARCHAR(100),
-    ISBN VARCHAR(20) UNIQUE,
-    Ano_publicacao YEAR,
-    Valor DECIMAL(10, 2),
-    Editora_ID INT,
+    ISBN VARCHAR(20),
+    Ano_Publicacao INT,
+    Valor DECIMAL,
+    Editora_ID INTEGER,
+    PRIMARY KEY(ID),
     FOREIGN KEY (Editora_ID) REFERENCES Editora(ID)
 );
 ```
 
-#### Tabela `Estoque`
-
+#### Estoque:
 ```sql
--- Excluir a tabela Estoque caso ela já exista
-DROP TABLE IF EXISTS Estoque;
-
--- Criar a tabela Estoque
 CREATE TABLE Estoque (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    Quantidade INT,
-    Livro_ID INT,
-    Editora_ID INT,
+    ID INTEGER AUTO_INCREMENT,
+    Livro_ID INTEGER,
+    Quantidade INTEGER,
+    Cod_Editora INTEGER,
+    PRIMARY KEY(ID),
     FOREIGN KEY (Livro_ID) REFERENCES Livro(ID),
-    FOREIGN KEY (Editora_ID) REFERENCES Editora(ID)
+    FOREIGN KEY (Cod_Editora) REFERENCES Editora(ID)
 );
 ```
 
-#### Tabela `Pedido`
-
+#### Pedido:
 ```sql
--- Excluir a tabela Pedido caso ela já exista
-DROP TABLE IF EXISTS Pedido;
-
--- Criar a tabela Pedido
 CREATE TABLE Pedido (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    Data_pedido DATE,
-    Valor DECIMAL(10, 2),
-    Cliente_ID INT,
+    ID INTEGER AUTO_INCREMENT,
+    Cliente_ID INTEGER,
+    Data_Pedido DATE,
+    Valor DECIMAL,
+    PRIMARY KEY(ID),
     FOREIGN KEY (Cliente_ID) REFERENCES Cliente(ID)
 );
 ```
 
-#### Tabela `Pedido_Livro`
-
+#### Item_Pedido:
 ```sql
--- Excluir a tabela Pedido_Livro caso ela já exista
-DROP TABLE IF EXISTS Pedido_Livro;
-
--- Criar a tabela Pedido_Livro (relacionando os livros com os pedidos)
-CREATE TABLE Pedido_Livro (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    Pedido_ID INT,
-    Livro_ID INT,
-    Quantidade INT,
+CREATE TABLE Item_Pedido (
+    Pedido_ID INTEGER,
+    Livro_ID INTEGER,
+    Quantidade INTEGER,
+    PRIMARY KEY(Pedido_ID, Livro_ID),
     FOREIGN KEY (Pedido_ID) REFERENCES Pedido(ID),
     FOREIGN KEY (Livro_ID) REFERENCES Livro(ID)
 );
 ```
 
-### Passo 3: Inserção de dados
+---
 
-#### Inserir dados na tabela `Cliente`
+## 3. Inserção de Dados
 
+Após a criação das tabelas, insira os dados de exemplo para popular as tabelas:
+
+### 3.1. Inserção de Dados na Tabela Cliente
 ```sql
-INSERT INTO Cliente (Nome, Endereco, Telefone, Email, Tipo_cliente, CPF, RG, CNPJ) 
-VALUES 
-  ('João Silva', 'Rua A, 123', '999999999', 'joao@email.com', 'PF', '123.456.789-00', 'MG1234567', NULL),
-  ('Maria Oliveira', 'Rua B, 456', '988888888', 'maria@email.com', 'PF', '234.567.890-11', 'MG2345678', NULL),
-  ('Empresa X', 'Av. C, 789', '977777777', 'empresa@x.com', 'PJ', NULL, NULL, '12.345.678/0001-99'),
-  ('Carlos Lima', 'Rua D, 101', '966666666', 'carlos@email.com', 'PF', '345.678.901-22', 'MG3456789', NULL),
-  ('Ana Souza', 'Rua E, 102', '955555555', 'ana@email.com', 'PF', '456.789.012-33', 'MG4567890', NULL),
-  ('Livros ABC', 'Av. F, 202', '944444444', 'livros@abc.com', 'PJ', NULL, NULL, '23.456.789/0001-00'),
-  ('Ricardo Costa', 'Rua G, 303', '933333333', 'ricardo@email.com', 'PF', '567.890.123-44', 'MG5678901', NULL),
-  ('Juliana Mendes', 'Rua H, 404', '922222222', 'juliana@email.com', 'PF', '678.901.234-55', 'MG6789012', NULL),
-  ('Editoras X', 'Rua I, 505', '911111111', 'editoras@x.com', 'PJ', NULL, NULL, '34.567.890/0001-11'),
-  ('Paula Costa', 'Rua J, 606', '900000000', 'paula@email.com', 'PF', '789.012.345-66', 'MG7890123', NULL);
+INSERT INTO Cliente (Nome, Endereco, Telefone, Email, Tipo_cliente, CPF, RG, CNPJ) VALUES
+('João Silva', 'Rua A, 123', '123456789', 'joao@example.com', 'PF', '123.456.789-00', 'MG1234567', NULL),
+('Maria Oliveira', 'Rua B, 456', '987654321', 'maria@example.com', 'PF', '987.654.321-00', 'SP9876543', NULL),
+-- (Outros dados omitidos por brevidade)
 ```
 
-#### Inserir dados na tabela `Editora`
-
+### 3.2. Inserção de Dados na Tabela Editora
 ```sql
-INSERT INTO Editora (Nome, Email, Telefone) 
-VALUES 
-  ('Editora ABC', 'editorabc@email.com', '123456789'),
-  ('Editora XYZ', 'editorxyz@email.com', '987654321');
+INSERT INTO Editora (Nome, Telefone, Email) VALUES
+('Editora ABC', '123456789', 'contato@abc.com'),
+('Editora XYZ', '987654321', 'contato@xyz.com'),
+-- (Outros dados omitidos por brevidade)
 ```
 
-#### Inserir dados na tabela `Livro`
-
+### 3.3. Inserção de Dados na Tabela Livro
 ```sql
-INSERT INTO Livro (Titulo, Categoria, ISBN, Ano_publicacao, Valor, Editora_ID) 
-VALUES 
-  ('Livro A', 'Ficção', '978-3-16-148410-0', 2020, 50.00, 1),
-  ('Livro B', 'Terror', '978-3-16-148411-7', 2021, 60.00, 2);
+INSERT INTO Livro (Titulo, Categoria, ISBN, Ano_Publicacao, Valor, Editora_ID) VALUES
+('O Hobbit', 'Fantasia', '1234567890', 1937, 59.90, 1),
+('Harry Potter', 'Fantasia', '0987654321', 1997, 79.90, 2),
+-- (Outros dados omitidos por brevidade)
 ```
 
-#### Inserir dados na tabela `Estoque`
-
+### 3.4. Inserção de Dados na Tabela Estoque
 ```sql
-INSERT INTO Estoque (Quantidade, Livro_ID, Editora_ID) 
-VALUES 
-  (100, 1, 1),
-  (150, 2, 2);
+INSERT INTO Estoque (Livro_ID, Quantidade, Cod_Editora) VALUES
+(1, 50, 1),
+(2, 30, 2),
+-- (Outros dados omitidos por brevidade)
 ```
 
-#### Inserir dados na tabela `Pedido`
-
+### 3.5. Inserção de Dados na Tabela Pedido
 ```sql
-INSERT INTO Pedido (Data_pedido, Valor, Cliente_ID) 
-VALUES 
-  ('2024-11-01', 150.00, 1),
-  ('2024-11-02', 120.00, 2);
+INSERT INTO Pedido (Cliente_ID, Data_Pedido, Valor) VALUES
+(1, '2024-10-01', 150.00),
+(2, '2024-10-02', 200.00),
+-- (Outros dados omitidos por brevidade)
 ```
 
-#### Inserir dados na tabela `Pedido_Livro`
-
+### 3.6. Inserção de Dados na Tabela Item_Pedido
 ```sql
-INSERT INTO Pedido_Livro (Pedido_ID, Livro_ID, Quantidade) 
-VALUES 
-  (1, 1, 2),
-  (2, 2, 3);
+INSERT INTO Item_Pedido (Pedido_ID, Livro_ID, Quantidade) VALUES
+(1, 1, 2),
+(1, 2, 1),
+-- (Outros dados omitidos por brevidade)
 ```
-
-### Passo 4: Consultas
-
-#### Consulta 1: Mostrar todos os livros de um determinado cliente
-
-```sql
-SELECT c.Nome AS Cliente, l.Titulo AS Livro, pl.Quantidade 
-FROM Pedido_Livro pl
-JOIN Pedido p ON pl.Pedido_ID = p.ID
-JOIN Cliente c ON p.Cliente_ID = c.ID
-JOIN Livro l ON pl.Livro_ID = l.ID
-WHERE c.Nome = 'João Silva';
-```
-
-**Explicação**: Essa consulta retorna o nome do cliente, o título dos livros e a quantidade desses livros no pedido de um cliente específico, no caso "João Silva".
-
-#### Consulta 2: Mostrar livros e suas editoras
-
-```sql
-SELECT l.Titulo AS Livro, e.Nome AS Editora
-FROM Livro l
-JOIN Editora e ON l.Editora_ID = e.ID;
-```
-
-**Explicação**: Retorna o título dos livros e o nome da editora associada a cada um.
-
-#### Consulta 3: Verificar o estoque disponível de um livro
-
-```sql
-SELECT l.Titulo AS Livro, e.Quantidade
-FROM Estoque e
-JOIN Livro l ON e.Livro_ID = l.ID;
-```
-
-**Explicação**: Mostra o título do livro e a quantidade disponível no estoque.
 
 ---
 
-### Backup do banco de dados
+*** CONSULTAS
 
-No MySQL Workbench, siga esses passos para realizar o backup:
+### 1. **Listar todos os livros com suas respectivas editoras e estoque disponível**
+```sql
+SELECT 
+    Livro.Titulo, 
+    Livro.Categoria, 
+    Livro.ISBN, 
+    Livro.Ano_Publicacao, 
+    Livro.Valor, 
+    Editora.Nome AS Editora, 
+    Estoque.Quantidade AS Estoque_Disponivel
+FROM 
+    Livro
+JOIN 
+    Editora ON Livro.Editora_ID = Editora.ID
+JOIN 
+    Estoque ON Livro.ID = Estoque.Livro_ID;
+```
+**Explicação**:  
+Esta consulta retorna informações sobre todos os livros, incluindo título, categoria, ISBN, ano de publicação, preço, nome da editora e a quantidade disponível em estoque. Ela usa `JOIN` para combinar as tabelas `Livro`, `Editora` e `Estoque`.
 
-1. No menu **Server**, selecione **Data Export**.
-2. Escolha o banco de dados `ClubeDoLivro` e marque as tabelas que deseja exportar.
-3. Escolha o formato de exportação (por exemplo, `.sql`).
-4. Clique em **Start Export** para gerar o backup.
+**Dados esperados**:
+- Título, categoria, ISBN, ano de publicação, valor, nome da editora e quantidade disponível no estoque de cada livro.
+
+---
+
+### 2. **Listar pedidos feitos por um cliente específico**
+```sql
+SELECT 
+    Pedido.ID AS Pedido_ID, 
+    Pedido.Data_Pedido, 
+    Pedido.Valor, 
+    Cliente.Nome AS Cliente_Nome
+FROM 
+    Pedido
+JOIN 
+    Cliente ON Pedido.Cliente_ID = Cliente.ID
+WHERE 
+    Cliente.Nome = 'João Silva';
+```
+**Explicação**:  
+Esta consulta retorna os pedidos feitos por um cliente específico (no caso, 'João Silva'). Ela retorna o ID do pedido, a data do pedido, o valor total do pedido e o nome do cliente. O `JOIN` entre as tabelas `Pedido` e `Cliente` é feito usando o `Cliente_ID`.
+
+**Dados esperados**:
+- ID do pedido, data do pedido, valor do pedido e nome do cliente para todos os pedidos feitos por "João Silva".
+
+---
+
+### 3. **Total de livros vendidos por pedido**
+```sql
+SELECT 
+    Pedido.ID AS Pedido_ID, 
+    SUM(Item_Pedido.Quantidade) AS Total_Livros_Vendidos
+FROM 
+    Item_Pedido
+JOIN 
+    Pedido ON Item_Pedido.Pedido_ID = Pedido.ID
+GROUP BY 
+    Pedido.ID;
+```
+**Explicação**:  
+Esta consulta retorna o número total de livros vendidos por pedido. Ela utiliza o `SUM` para somar as quantidades de livros em cada pedido e agrupa os resultados por `Pedido_ID`.
+
+**Dados esperados**:
+- ID do pedido e o total de livros vendidos para cada pedido.
+
+---
+
+### 4. **Clientes que compraram livros de uma editora específica**
+```sql
+SELECT 
+    Cliente.Nome AS Cliente_Nome, 
+    Pedido.ID AS Pedido_ID, 
+    Pedido.Data_Pedido
+FROM 
+    Cliente
+JOIN 
+    Pedido ON Cliente.ID = Pedido.Cliente_ID
+JOIN 
+    Item_Pedido ON Pedido.ID = Item_Pedido.Pedido_ID
+JOIN 
+    Livro ON Item_Pedido.Livro_ID = Livro.ID
+WHERE 
+    Livro.Editora_ID = 1;  -- Editora ABC
+```
+**Explicação**:  
+Esta consulta retorna os clientes que compraram livros da "Editora ABC" (Editora com ID 1). Ela faz `JOIN` entre as tabelas `Cliente`, `Pedido`, `Item_Pedido` e `Livro` para relacionar as compras com os clientes e livros da editora especificada.
+
+**Dados esperados**:
+- Nome do cliente, ID do pedido e data do pedido para todos os pedidos feitos com livros da editora "Editora ABC".
+
+---
+
+### 5. **Valor total gasto por cada cliente**
+```sql
+SELECT 
+    Cliente.Nome AS Cliente_Nome, 
+    SUM(Pedido.Valor) AS Total_Gasto
+FROM 
+    Cliente
+JOIN 
+    Pedido ON Cliente.ID = Pedido.Cliente_ID
+GROUP BY 
+    Cliente.ID;
+```
+**Explicação**:  
+Esta consulta calcula o valor total gasto por cada cliente. Ela usa o `SUM` para somar os valores dos pedidos de cada cliente e agrupa os resultados por `Cliente_ID`.
+
+**Dados esperados**:
+- Nome do cliente e o total gasto por cada um.
+
+---
+
+### 6. **Livros mais vendidos (com base no número de unidades vendidas)**
+```sql
+SELECT 
+    Livro.Titulo, 
+    SUM(Item_Pedido.Quantidade) AS Total_Vendido
+FROM 
+    Livro
+JOIN 
+    Item_Pedido ON Livro.ID = Item_Pedido.Livro_ID
+GROUP BY 
+    Livro.ID
+ORDER BY 
+    Total_Vendido DESC
+LIMIT 5;
+```
+**Explicação**:  
+Esta consulta retorna os 5 livros mais vendidos, com base no total de unidades vendidas. Ela soma as quantidades de livros vendidas e ordena o resultado pela quantidade total de forma decrescente (`DESC`).
+
+**Dados esperados**:
+- Título do livro e o número total de unidades vendidas dos 5 livros mais vendidos.
+
+---
+
+### 7. **Quantidade de livros em estoque por editora**
+```sql
+SELECT 
+    Editora.Nome AS Editora_Nome, 
+    SUM(Estoque.Quantidade) AS Total_Em_Estoque
+FROM 
+    Editora
+JOIN 
+    Estoque ON Editora.ID = Estoque.Cod_Editora
+GROUP BY 
+    Editora.ID;
+```
+**Explicação**:  
+Esta consulta retorna a quantidade total de livros em estoque para cada editora. Ela utiliza a função `SUM` para somar as quantidades de livros em estoque, agrupadas por editora.
+
+**Dados esperados**:
+- Nome da editora e a quantidade total de livros em estoque.
+
+---
+
+### 8. **Detalhes do pedido (livros e quantidades)**
+```sql
+SELECT 
+    Pedido.ID AS Pedido_ID, 
+    Livro.Titulo, 
+    Item_Pedido.Quantidade
+FROM 
+    Pedido
+JOIN 
+    Item_Pedido ON Pedido.ID = Item_Pedido.Pedido_ID
+JOIN 
+    Livro ON Item_Pedido.Livro_ID = Livro.ID
+WHERE 
+    Pedido.ID = 1;
+```
+**Explicação**:  
+Esta consulta retorna os detalhes do pedido com ID 1, incluindo os títulos dos livros e as quantidades de cada livro no pedido. Ela faz `JOIN` entre as tabelas `Pedido`, `Item_Pedido` e `Livro`.
+
+**Dados esperados**:
+- ID do pedido, título dos livros e quantidade de cada livro no pedido.
